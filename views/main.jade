@@ -1,0 +1,74 @@
+doctype
+html
+	head
+		meta(charset="UTF-8")
+		title 主体
+		link(rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", href="/css/main.css")
+	body
+		.admin-main
+			blockquote.layui-elem-quote
+				p 后台管理+即时通讯
+				p ( 项目: express + mongodb + layui )
+				p(style="font-size:18px;")
+					span 当前在线用户: 
+					span#onlineNum(style="color:red;font-weight:bold")  
+			fieldset.layui-elem-field
+				legend 更新日志
+				.layui-field-box
+					fieldset.layui-elem-field.layui-field-title
+						legend 版本号:# v0.0.1 2017-08-25
+						.layui-field-box
+							p -系统的访问
+							p -系统功能的基本展示
+					fieldset.layui-elem-field.layui-field-title
+						legend 版本号:# v0.0.2 2017-09-01
+						.layui-field-box
+							p -系统的参数配置
+							p -菜单管理
+							p -日志系统
+							p -权限管理
+							p -用户管理
+					fieldset.layui-elem-field.layui-field-title
+						legend 版本号:# v1.0.0 2017-09-05
+						.layui-field-box
+							p -考虑接入IM
+							p 
+								span -实现WebIM 
+								span(style="color:red") 即使通讯 
+								span 功能
+					fieldset.layui-elem-field.layui-field-title
+						legend 版本号:# v1.0.1 2017-09-13
+						.layui-field-box
+							p -好友的搜索 (基于id)
+							p -消息盒子提示 (未考虑数据流)
+							p -好友的添加
+							p -好友自定义分组
+							p -好友即时通讯
+					fieldset.layui-elem-field.layui-field-title
+						legend 版本号:# v1.0.2 2017-09-14
+						.layui-field-box
+							p -好友在线状态实时更新 (在线、隐身)
+							p -在线用户实时统计
+							p -账号重复登录强踢下线
+						legend 版本号:# v1.0.2 2017-09-15
+						.layui-field-box
+							p -好友直接实时的发送文件 (目前文件仅支持.zip，普通支持.jpg)
+							p -在线用户实时统计
+							p -账号重复登录强踢下线
+			fieldset.layui-elem-field
+				legend 反馈
+				.layui-field-box
+					fieldset.layui-elem-field.layui-field-title
+						legend 问题
+						.layui-field-box
+							p -IM聊天群系统
+							p -IM好友聊天记录
+							p -IM好友删除功能
+							p -IM消息盒子 (后期使用数据流)
+							p -IM面板好友自定义分组上限限制
+							p -IM好友即时通讯 (“正在输入...”状态欠佳)
+	script(type="text/javascript", src="/plugins/layui/layui.js")
+
+
+

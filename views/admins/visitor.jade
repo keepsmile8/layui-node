@@ -1,0 +1,175 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		title 游客
+		link(rel="stylesheet", type="text/css", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", type="text/css", href="/css/global.css", media="all")
+		link(rel="stylesheet", type="text/css", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css", media="all")
+		link(rel="stylesheet", type="text/css", href="/css/table.css", media="all")
+	body
+		.admin-main
+			fieldset.layui-elem-field
+				legend 数据列表
+				.layui-field-box.layui-form
+					table.layui-table.admin-table
+						thead
+							tr
+								th(style="width: 30px;")
+									input(type="checkbox", lay-filter="allselector", lay-skin="primary")
+								th id
+								th 用户名
+								th 组
+								th 状态
+								th 创建时间
+								th 最后登录时间
+								th 最后登录IP
+								th 职位
+								th 操作
+						tbody#content
+			.admin-table-page
+				.page#paged
+			script(type="text/html", id="tpl")
+				span {{# layui.each(d.list, function(index, item){ }}
+				tr
+					td
+						input(type="checkbox", lay-skin="primary")
+					td
+						span {{# if(item.online == 'online') { }}
+						span(style="color:#3FDD86") {{ item._id }}
+						span {{# }else{ }}
+						span(style="") {{ item._id }}
+						span {{# } }}
+					td
+						span {{ item.name }}
+					td
+						span {{ item.group.name }}
+					td
+						span {{ item.status }}
+					td
+						span {{ item.created_at }}
+					td
+						span {{ item.logintime }}
+					td
+						span {{ item.ip }}
+					td
+						span {{ item.position }}
+					td
+						a.layui-btn.layui-btn-mini(href="javascript:;", data-name="{{ item.name }}", data-id="{{item._id}}", data-opt="edit") 编辑
+						a.layui-btn.layui-btn-danger.layui-btn-mini(href="javascript:;", data-id="{{item._id}}", data-opt="del") 删除
+				span {{# }); }}
+			script(type="text/javascript", src="/plugins/layui/layui.js")
+			script.
+				layui.config({
+					base: '/js/'
+				});
+
+				layui.use(['paging', 'form'], function() {
+					var $ = layui.jquery,
+						paging = layui.paging(),
+						layerTips = parent.layer === undefined ? layui.layer : parent.layer, //获取父窗口的layer对象
+						layer = layui.layer,
+						form = layui.form();
+
+					paging.init({
+						url: '/users/visitor',
+						elem: '#content',
+						params: {
+						},
+						type: 'POST',
+						tempElem: '#tpl',
+						pageConfig: {
+							elem: '#paged',
+							pageSize: 8
+						},
+						success: function() {
+						},
+						fail: function(msg) {
+						},
+						complate: function() {
+							form.render('checkbox');
+							form.on('checkbox(allselector)', function(data) {
+								var elem = data.elem;
+
+								$('#content').children('tr').each(function() {
+									var $that = $(this);
+									//全选或反选
+									$that.children('td').eq(0).children('input[type=checkbox]')[0].checked = elem.checked;
+									form.render('checkbox');
+								});
+							});					
+							$('#content').children('tr').each(function() {
+								var $that = $(this);
+								$that.children('td:last-child').children('a[data-opt=edit]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									$.get('/users/edit/'+_id, null, function(form) {
+										layer.open({
+											type: 1,
+											title: '编辑管理员',
+											content: form,
+											btn: ['保存', '取消'],
+											shade: false,
+											offset: ['100px', '30%'],
+											area: ['600px', '450px'],
+											zIndex: 19950924,
+											maxmin: true,
+											yes: function(index) {
+												$('form.layui-form').find('button[lay-filter=edit]').click();
+												layer.close(index)
+											},
+											full: function(elem) {
+												var win = window.top === window.self ? window : parent.window;
+												$(win).on('resize', function() {
+													var $this = $(this);
+													elem.width($this.width()).height($this.height()).css({
+														top: 0,
+														left: 0
+													});
+													elem.children('div.layui-layer-content').height($this.height() - 95);
+												});
+											},
+											success: function(layero, index) {
+												var form = layui.form();
+												form.render();
+												form.on('submit(edit)', function(data) {
+													$.post('/users/edit', data.field, function(data) {
+														setTimeout(function () {
+										                    location.href = data.url;
+										                }, 1000);
+											            layer.msg(data.msg);
+													})
+													return false;
+												});
+											},
+											end: function() {
+												//- addBoxIndex = -1;
+											}
+										});
+									});
+								});
+								$that.children('td:last-child').children('a[data-opt=del]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									$.get('/users/del/'+_id, {}, function(data) {
+										setTimeout(function () {
+						                    location.href = data.url;
+						                }, 1000);
+							            layer.msg(data.msg);
+									})
+								})
+							});
+
+						},
+					});
+					$('#getSelected').on('click', function() {
+						var names = '';
+						$('#content').children('tr').each(function() {
+							var $that = $(this);
+							var $cbx = $that.children('td').eq(0).children('input[type=checkbox]')[0].checked;
+							if($cbx) {
+								var n = $that.children('td:last-child').children('a[data-opt=edit]').data('name');
+								names += n + ',';
+							}
+						});
+						layer.msg('你选择的名称有：' + names);
+					});					
+				});

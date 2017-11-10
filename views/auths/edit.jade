@@ -1,0 +1,21 @@
+div(style="margin:15px")
+	form.layui-form(action="/groups/add", method="post")
+		.layui-form-item
+			label.layui-form-label 名称
+			.layui-input-block
+				input.layui-input(type="text", name="name", value="#{data.name}", placeholder="请输入权限名称", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label url
+			.layui-input-block
+				input.layui-input(type="text", name="url", value="#{data.url}", placeholder="请输入权限url", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 排序
+			.layui-input-block
+				input.layui-input(type="text", name="sort", value="#{data.sort}", placeholder="请输入排序值", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 状态
+			.layui-input-block
+				input(type="radio", name="status", value=1, title="启用", checked)
+				input(type="radio", name="status", value=0, title="关闭")
+		input(type="hidden", name="_id", value="#{data._id}")
+		button(lay-filter="edit", style="display: none;", lay-submit)

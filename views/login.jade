@@ -1,0 +1,58 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		meta(http-equiv="X-UA-Compatible", content="IE=edge")
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+		title 登录
+		link(rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", href="/css/login.css", media="all")
+	body(class="beg-login-bg")
+		.beg-login-box
+			header
+				h1 后台登录
+			.beg-login-main
+				form.layui-form(action="/login", method="post")
+					.layui-form-item
+						label.beg-login-icon
+							i.layui-icon &#xe612;
+						input.layui-input(type="text", name="username", lay-verify="userName", autocomplete="off", placeholder="这里输入登录名")
+					.layui-form-item
+						label.beg-login-icon
+							i.layui-icon &#xe642;
+						input.layui-input(type="password", name="password", lay-verify="password", autocomplete="off", placeholder="这里输入密码")
+					.layui-form-item
+						.beg-pull-left.beg-login-remember
+							label 记住账号？
+							input(type="checkbox", name="rememberMe", value="true", lay-skin="switch", checked, title="记住帐号")
+						.beg-pull-right
+							button.layui-btn.layui-btn-primary(lay-submit, lay-filter="login")
+								i.layui-icon &#xe650;
+								span 登录
+						.beg-clear
+			footer
+				p PHPER © www.wlzone.cn
+		script(type="text/javascript", src="/plugins/layui/layui.js")
+		script.
+			layui.use(['layer', 'form'], function() {
+				var layer = layui.layer,
+					$ = layui.jquery,
+					form = layui.form();
+				form.on('submit(login)', function(data){
+					$.ajax({
+				        url: data.form.action,
+				        type: data.form.method,
+				        data: $(data.form).serialize(),
+				        success: function (info) {
+			                setTimeout(function () {
+			                    location.href = info.url;
+			                }, 1000);
+				            layer.msg(info.msg);
+				        }
+				    });
+
+				    return false;
+				});
+			})
+
+

@@ -1,0 +1,29 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		title 写文章
+		link(rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", href="/css/global.css", media="all")
+		link(rel="stylesheet", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css", type="text/css")
+		link(rel="stylesheet", href="/css/table.css", media="all")
+	body
+		.admin-main
+			fieldset.layui-elem-field
+				legend #{data.title}
+				.layui-field-box.layui-form
+					.body
+		script(type="text/javascript", src="/js/jquery.min.js")
+		script.
+			var body = '#{data.body}';
+			body = entityToString(body);
+			$('.body').html(body);
+			function entityToString(entity){
+				var div=document.createElement('div');
+				div.innerHTML=entity;
+				var res=div.innerText||div.textContent;
+				return res;
+			}
+
+			
+		

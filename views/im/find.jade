@@ -1,0 +1,99 @@
+doctype
+html
+head
+	meta(charset="utf-8")
+	meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1")
+	title 发现
+	link(rel="stylesheet", href="/plugins/layui/css/layui.css")
+	link(rel="stylesheet", href="/plugins/layui/css/modules/layim/find.css")
+body
+	div( style="margin: 15px;")
+		blockquote.layui-elem-quote 请输入对应的ID
+		fieldset.layui-elem-field.layui-field-title(style="margin-top: 30px;")
+			legend 你想找？？
+		.layui-tab
+			ul.layui-tab-title
+				li.layui-this 找人
+				li 找群
+			.layui-tab-content
+				.layui-tab-item.layui-show(type="user")
+					input.layui-input#userid(type="text", name="userid", required, lay-verify="required", placeholder="请输入用户ID", autocomplete="off" )
+				.layui-tab-item(type="group")
+					input.layui-input#groupid(type="text", name="groupid", required, lay-verify="required", placeholder="请输入群ID", autocomplete="off")
+				div(style="padding-top:10px;")
+					button.layui-btn.layui-btn-small.layui-btn-primary#find
+						i.layui-icon &#xe615;
+		.findbody(style="display:none;")
+			fieldset.layui-elem-field.layui-field-title(style="margin-top: 30px;")
+				legend 查找结果
+			.list
+				.chat
+					.avatar
+						img(src="/images/0.jpg")
+					.info
+						p ddd&nbsp;
+							span (111111)
+						p 男
+						button.layui-btn.layui-btn-small.layui-btn-primary.add
+							i.layui-icon &#xe654;
+	script(src="/plugins/layui/layui.js")
+	script(type="text/javascript", src="/socket.io/socket.io.js")
+	script.
+		layui.use(['layim', 'laypage', 'element'], function(){
+			var _user = '#{data._id}';
+			var layim = layui.layim
+				,layer = layui.layer
+				,laytpl = layui.laytpl
+				,$ = layui.jquery
+				,laypage = layui.laypage;
+			var element = layui.element();
+			$('#find').on('click', function(){
+				var type = $('.layui-show').attr('type');
+				var attribute = type + 'id';
+				var id = $('#' + attribute).val();
+				$.post('/users/im/find', {type:type, _id:id}, function(d) {
+					if(d.code == 0){
+						var name = "<span class='username'>" + d.data.name + "</span>&nbsp;(<span class='uid'>" + d.data._id + "</span>)"
+						$('.list .info p').eq(0).html(name);
+						$('.list .info p').eq(1).html(d.data.sex);
+						$('.list .avatar img').attr('src', d.data.avatar);
+						$('.add').attr('id', d.data._id);
+						$('.findbody .layui-field-title').append('<div>找到'+ d.count +'个人</div>')
+						$('.findbody').show();
+					}
+				}) 
+			})
+			$('.findbody .info .add').on('click', function() {
+				var name = $('.username').html();
+				var avatar = $('.findbody .avatar img').attr('src');
+				var uid = $('.uid').html();
+				layim.add({
+					type: 'friend' //friend：申请加好友、group：申请加群
+					,username:  name//好友昵称，若申请加群，参数为：groupname
+					,avatar: avatar //头像
+					,submit: function(group, remark, index){ //一般在此执行Ajax和WS，以通知对方
+						console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
+						console.log(remark); //获取附加信息
+						// var time = (new Date()).valueOf();
+						var data = {content: '申请添加你为好友', uid:uid, from:_user, remark:remark, type:1, from_group:group}
+						var socket = io.connect('http://127.0.0.1:8080');
+						$.post('/users/im/addUserApply', data, function(_d) {
+							if(_d.code == 0) {
+								socket.emit('UserApply', {
+									status: 'apply',
+									from: _user, //当前用户
+									uid: uid, // 待添加用户
+								});
+								layer.close(index);
+							}else{
+								layer.msg(_d.msg);
+								setTimeout(function () {
+									layer.close(index);
+								}, 1000);
+							}
+						})
+					}
+				});
+			})
+		});
+

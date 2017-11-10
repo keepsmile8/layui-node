@@ -1,0 +1,186 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		title 日志
+		link(rel="stylesheet", type="text/css", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", type="text/css", href="/css/global.css", media="all")
+		link(rel="stylesheet", type="text/css", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css", media="all")
+		link(rel="stylesheet", type="text/css", href="/css/table.css", media="all")
+	body
+		.admin-main
+			fieldset.layui-elem-field
+				legend 数据列表
+				.layui-field-box.layui-form
+					a.layui-btn(href="/admin/diary/write") 发表文章
+					table.layui-table.admin-table(lay-skin="line")
+						thead
+							tr
+								th(style="width: 30px;")
+									input(type="checkbox", lay-filter="allselector", lay-skin="primary")
+								th 作者
+								th 标题
+								th 职位
+								th 创建时间
+								th 操作
+						tbody#content
+			.admin-table-page
+				.page#paged
+			//- 模板
+			script(type="text/html", id="tpl")
+				span {{# layui.each(d.list, function(index, item){ }}
+				tr
+					td
+						input(type="checkbox", lay-skin="primary")
+					td
+						span {{ item.author.name }}
+					td
+						span {{ item.title }}
+					td
+						span {{ item.author.position }}
+					td
+						span {{ item.createtime }}
+					td
+						a.layui-btn.layui-btn-mini.layui-btn-normal(href="javascript:;", data-opt="read", data-id="{{item._id}}") 预览
+						a.layui-btn.layui-btn-mini(href="javascript:;", data-opt="edit", data-id="{{item._id}}") 编辑
+						a.layui-btn.layui-btn-danger.layui-btn-mini(href="javascript:;", data-id="{{item._id}}", data-opt="del") 删除
+				span {{# }); }}
+			script(type="text/javascript", src="/plugins/layui/layui.js")
+			script.
+				layui.config({
+					base: '/js/'
+				});
+
+				layui.use(['paging', 'form'], function() {
+					var $ = layui.jquery,
+						paging = layui.paging(),
+						layerTips = parent.layer === undefined ? layui.layer : parent.layer,
+						layer = layui.layer,
+						form = layui.form();
+
+					paging.init({
+						url: '/admin/diary',
+						elem: '#content',
+						params: {
+						},
+						type: 'POST',
+						tempElem: '#tpl',
+						pageConfig: {
+							elem: '#paged',
+							pageSize: 8
+						},
+						success: function() {
+							//alert('渲染成功');
+						},
+						fail: function(msg) {
+							//alert('获取数据失败')
+						},
+						complate: function() {
+							form.render('checkbox');
+							form.on('checkbox(allselector)', function(data) {
+								var elem = data.elem;
+
+								$('#content').children('tr').each(function() {
+									var $that = $(this);
+									$that.children('td').eq(0).children('input[type=checkbox]')[0].checked = elem.checked;
+									form.render('checkbox');
+								});
+							});
+					
+							$('#content').children('tr').each(function() {
+								var $that = $(this);
+								$that.children('td:last-child').children('a[data-opt=read]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									var writeTab = {"title": "阅读文章", "icon": "fa-table", "href": "/admin/diary/read/"+_id};
+									window.parent.tab.tabAdd(writeTab);
+									$.get('/admin/diary/read/'+_id, {}, function(data) {})
+								});
+								$that.children('td:last-child').children('a[data-opt=edit]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									var writeTab = {"title": "编辑文章", "icon": "fa-table", "href": "/admin/diary/edit/"+_id};
+									window.parent.tab.tabAdd(writeTab);
+									$.get('/admin/diary/edit/'+_id, {}, function(data) {})
+								});
+								$that.children('td:last-child').children('a[data-opt=del]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									$.get('/admin/diary/del/'+_id, {}, function(data) {
+										setTimeout(function () {
+						                    location.href = data.url;
+						                }, 1000);
+							            layer.msg(data.msg);
+									})
+								})
+							});
+						},
+					});
+
+					$('#getSelected').on('click', function() {
+						var names = '';
+						$('#content').children('tr').each(function() {
+							var $that = $(this);
+							var $cbx = $that.children('td').eq(0).children('input[type=checkbox]')[0].checked;
+							if($cbx) {
+								var n = $that.children('td:last-child').children('a[data-opt=edit]').data('name');
+								names += n + ',';
+							}
+						});
+						layer.msg('你选择的名称有：' + names);
+					});
+					
+					var addBoxIndex = -1;
+					$('#add').on('click', function() {
+						if(addBoxIndex !== -1)
+							return;
+						$.get('/navs/add', null, function(form) {
+							addBoxIndex = layer.open({
+								type: 1,
+								title: '添加导航',
+								content: form,
+								btn: ['保存', '取消'],
+								shade: false,
+								offset: ['100px', '30%'],
+								area: ['600px', '450px'],
+								zIndex: 19950924,
+								maxmin: true,
+								yes: function(index) {
+									$('form.layui-form').find('button[lay-filter=edit]').click();
+									layer.close(index)
+								},
+								full: function(elem) {
+									var win = window.top === window.self ? window : parent.window;
+									$(win).on('resize', function() {
+										var $this = $(this);
+										elem.width($this.width()).height($this.height()).css({
+											top: 0,
+											left: 0
+										});
+										elem.children('div.layui-layer-content').height($this.height() - 95);
+									});
+								},
+								success: function(layero, index) {
+									var form = layui.form();
+									form.render();
+									form.on('submit(edit)', function(data) {
+										$.post('/navs/add', data.field, function(data) {
+											setTimeout(function () {
+							                    location.href = data.url;
+							                }, 1000);
+								            layer.msg(data.msg);
+										})
+										return false;
+									});
+								},
+								end: function() {
+									addBoxIndex = -1;
+								}
+							});
+						});
+					});
+
+					$('#import').on('click', function() {
+						var that = this;
+						var index = layer.tips('只想提示地精准些', that, { tips: [1, 'white'] });
+						$('#layui-layer' + index).children('div.layui-layer-content').css('color', '#000000');
+					});
+				});
+				

@@ -1,0 +1,17 @@
+div(style="margin:15px")
+	form.layui-form(action="/groups/add", method="post")
+		.layui-form-item
+			label.layui-form-label 用户组
+			.layui-input-block
+				input.layui-input(type="text", name="name", value="#{group.name}" placeholder="请输入用户组名称", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 权重
+			.layui-input-block
+				input.layui-input(type="text", name="weight", value="#{group.weight}" placeholder="请输入用户组权重", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 状态
+			.layui-input-block
+				input(type="radio", name="status", value="1", title="启用", checked)
+				input(type="radio", name="status", value="0", title="关闭")
+		input(type="hidden", name="_id", value="#{group._id}")
+		button(lay-filter="edit", style="display: none;", lay-submit)

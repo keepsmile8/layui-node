@@ -1,0 +1,38 @@
+.profile
+	.avatar
+		.img(style="width:200px; margin:0 auto;pointer:cursor;position:relative")
+			img(src="#{data.avatar}", style="width:200px;height:200px;border-radius:100%;")
+			.layui-box(style="position:absolute;left:0px;top:0px;")
+				form(action="", method="post", enctype="multipart/form-data", target="layui-upload-iframe", key="set-mine")
+					input.layui-upload-file(type="file", name="file", style="width:200px;height:200px;")
+	.body(style="font-size:18px;")
+		.line(style="width:40%;margin:0 auto;padding:5px 0;")
+			.left(style="float:left;") 姓名:
+			.right(style="float:right;") #{data.name}
+			.clear(style="clear:both")
+		.line(style="width:40%;margin:0 auto;padding:5px 0;")
+			.left(style="float:left;") 性别:
+			.right(style="float:right;") 男
+			.clear(style="clear:both")
+		.line(style="width:40%;margin:0 auto;padding:5px 0;")
+			.left(style="float:left;") 用户组:
+			.right(style="float:right;") #{data.group.name}
+			.clear(style="clear:both")
+		.line(style="width:40%;margin:0 auto;padding:5px 0;")
+			.left(style="float:left;") 登录时间:
+			.right(style="float:right;") #{data.logintime}
+			.clear(style="clear:both")
+script.
+	layui.use(['upload'], function() {
+		var layer = layui.layer,
+			$ = layui.jquery;
+		layui.upload({
+			url: '/users/edit'
+			,unwrap: true
+			,success: function(res){
+				layer.close(window.a);
+				$('.admin-header-user img').attr('src', res.url);
+			}
+		});
+	})
+	

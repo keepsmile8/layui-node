@@ -1,0 +1,35 @@
+div(style="margin:15px")
+	form.layui-form()
+		.layui-form-item
+			label.layui-form-label 用户名
+			.layui-input-block
+				input.layui-input(type="text", disabled, name="name", value="#{user.name}", placeholder="请输入用户名", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 职位
+			.layui-input-block
+				input.layui-input(type="text", name="position", value="#{user.position}", placeholder="请输入职位", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 密码
+			.layui-input-block
+				input.layui-input(type="password", name="password", placeholder="如果不修改就留空", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 重复密码
+			.layui-input-block
+				input.layui-input(type="password", name="repassword", placeholder="如果不修改就留空", autocomplete="off")
+		.layui-form-item
+			label.layui-form-label 状态
+			.layui-input-block
+				input(type="radio", name="status", value=1, title="启用", checked)
+				input(type="radio", name="status", value=0, title="关闭")
+		.layui-form-item
+			label.layui-form-label 权限组
+			.layui-input-block
+				select(name="groups", lay-filter="groups")
+					option(value="0") 请选择权限组
+					each val in gourps
+						if user.group.name != val.name
+							option(value="#{val._id}") #{val.name}
+						else 
+							option(value="#{val._id}", selected) #{val.name}
+		input(type="hidden", name="_id", value="#{user._id}")
+		button(lay-filter="edit", style="display: none;", lay-submit)

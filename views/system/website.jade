@@ -1,0 +1,63 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		title 站点配置
+		link(rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", href="/css/global.css", media="all")
+		link(rel="stylesheet", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css", type="text/css")
+		link(rel="stylesheet", href="/css/table.css", media="all")
+	body
+		.admin-main
+			fieldset.layui-elem-field
+				legend 站点配置
+				.layui-field-box.layui-form
+					form.layui-form()
+						.layui-form-item
+							label.layui-form-label 网站标题
+							.layui-input-block
+								input.layui-input(type="text", value="#{data.title}", name="title", lay-verify="title", autocomplete="off", placeholder="请输入网站标题")
+						.layui-form-item
+							label.layui-form-label SEO标题
+							.layui-input-block
+								input.layui-input(type="text", value="#{data.seotitle}", name="seotitle", lay-verify="seotitle", autocomplete="off", placeholder="请输入SEO标题")
+						.layui-form-item
+							label.layui-form-label SEO关键词
+							.layui-input-block
+								input.layui-input(type="text", value="#{data.keywords}", name="keywords", lay-verify="keywords", autocomplete="off", placeholder="请输入SEO关键词")
+						.layui-form-item.layui-form-text
+							label.layui-form-label SEO描述
+							.layui-input-block
+								textarea.layui-textarea(name="description", placeholder="请输入SEO描述") #{data.description}
+						.layui-form-item
+							label.layui-form-label 版权信息
+							.layui-input-block
+								input.layui-input(type="text", value="#{data.copyright}", name="copyright", lay-verify="copyright", autocomplete="off", placeholder="请输入网站版权信息")
+						.layui-form-item
+							label.layui-form-label ICP备案号
+							.layui-input-block
+								input.layui-input(type="text", value="#{data.icpnum}", name="icpnum", lay-verify="icpnum", autocomplete="off", placeholder="请输入ICP备案号")
+						.layui-form-item.layui-form-text
+							label.layui-form-label. 统计代码
+							.layui-input-block
+								textarea.layui-textarea(name="tongji", placeholder="请输入统计代码") #{data.tongji}
+						.layui-form-item
+							.layui-input-block
+								input.layui-input(type="hidden", value="#{data._id}", name="_id")
+								button.layui-btn(lay-submit="", lay-filter="save") 立即提交
+								button.layui-btn.layui-btn-primary(type="reset") 重置
+		script(type="text/javascript", src="/plugins/layui/layui.js")
+		script.
+			layui.use(['form'], function() {
+				var $ = layui.jquery,
+					form = layui.form();
+					form.on('submit(save)', function(data) {
+						$.post('/system/website', data.field, function(data) {
+							setTimeout(function () {
+			                    location.href = data.url;
+			                }, 1000);
+				            layer.msg(data.msg);
+						})
+						return false;
+					});
+			})

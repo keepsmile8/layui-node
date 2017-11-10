@@ -1,0 +1,46 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		title 写文章
+		link(rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", href="/css/global.css", media="all")
+		link(rel="stylesheet", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css", type="text/css")
+		link(rel="stylesheet", href="/css/table.css", media="all")
+	body
+		.admin-main
+			fieldset.layui-elem-field
+				legend 写文章
+				.layui-field-box.layui-form
+					form.layui-form(action="/system/website", method="post", onsubmit="return false;")
+						.layui-form-item
+							label.layui-form-label 标题
+							.layui-input-block
+								input.layui-input(type="text", name="title", lay-verify="title", autocomplete="off", placeholder="请输入标题")
+						.layui-form-item
+							label.layui-form-label 内容
+							.layui-input-block
+								script#editor(type="text/plain", style="width:1024px;height:500px;")
+						.layui-form-item
+							.layui-input-block
+								button.layui-btn(lay-submit="", lay-filter="save") 立即提交
+								button.layui-btn.layui-btn-primary(type="reset") 重置
+		script(type="text/javascript", src="/plugins/layui/layui.js")
+		script.
+			layui.config({
+				base: '/plugins/Ueditor/' 
+			}).use(['ueditor', 'form'], function() {
+				var UE = layui.ueditor;
+				var ue = UE.getEditor('editor');
+				var form = layui.form();
+				var $ = layui.jquery;
+				form.on('submit(save)', function(data) {
+					$.post('/admin/diary/write', data.field, function(data) {
+						setTimeout(function () {
+							location.href = data.url;
+						}, 1000);
+						layer.msg(data.msg);
+					})
+					return false; 								
+				});
+			});

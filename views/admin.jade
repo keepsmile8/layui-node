@@ -1,0 +1,155 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		meta(name="renderer", content="webkit")
+		meta(http-equiv="X-UA-Compatible", content="IE=edge,chrome=1")
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1")
+		meta(name="apple-mobile-web-app-status-bar-style", content="black")
+		meta(name="apple-mobile-web-app-capable", content="yes")
+		meta(name="format-detection", content="telephone=no")
+		title 后台管理模板
+		link( rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link( rel="stylesheet", href="/css/global.css", media="all")
+		link( rel="stylesheet", type="text/css", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css")
+	body
+		.layui-layout.layui-layout-admin(style="border-bottom: solid 5px #1aa094;")
+			.layui-header.header.header-demo
+				.layui-main
+					.admin-login-box
+						a.logo(style="left:0", href="http://www.wlzone.cn")
+							span(style="font-size: 22px;") PHPERAdmin
+						.admin-side-toggle
+							i.fa.fa-bars(aria-hidden="true")
+						.admin-side-full
+							i.fa.fa-life-bouy(aria-hidden="true")
+					ul.layui-nav.admin-header-item
+						li.layui-nav-item
+							a(href="javascript:;") 清除缓存
+						li.layui-nav-item
+							a(href="javascript:;") 浏览网站
+						li.layui-nav-item#video1
+							a(href="javascript:;") 视频
+						li.layui-nav-item
+							a.admin-header-user(href="javascript:;")
+								img(src="#{data.avatar}")
+								span #{data.name}
+							dl.layui-nav-child
+								dd
+									a.profile(href="javascript:;")
+										i.fa.fa-user-circle(aria-hidden="true")
+										span 个人信息
+								dd
+									a(href="javascript:;")
+										i.fa.fa-gear(aria-hidden="true")
+										span 设置
+								dd#lock
+									a(href="javascript:;")
+										i.fa.fa-lock(aria-hidden="true", style="padding-right: 3px;padding-left: 1px;")
+										span 锁屏(ALT+L)
+								dd
+									a.loginout(href="javascript:;")
+										i.fa.fa-sign-out(aria-hidden="true")
+										span 注销
+					ul.layui-nav.admin-header-item-mobile
+						li.layui-nav-item
+							a.loginout(href="javascript:;")
+								i.fa.fa-sign-out(aria-hidden="true")
+								span 注销
+			.layui-side.layui-bg-black#admin-side
+				.layui-side-scroll#admin-navbar-side(lay-filter="side")
+			.layui-body#admin-body(style="bottom: 0;border-left: solid 2px #1AA094;")
+				.layui-tab.admin-nav-card.layui-tab-brief(lay-filter="admin-tab")
+					ul.layui-tab-title
+						li.layui-this
+							i.fa.fa-dashboard(aria-hidden="true")
+							cite 控制面板
+					.layui-tab-content(style="min-height: 150px; padding: 5px 0 0 0;")
+						.layui-tab-item.layui-show
+							iframe(src='/main')
+			.layui-footer.footer.footer-demo#admin-footer
+				.layui-main
+					p 2017 &copy;
+						a(href="http://www.wlzone.cn") www.wlzone.cn
+						LGPL license
+			.site-tree-mobile.layui-hide
+				i.layui-icon &#xe602;
+			.site-mobile-shade
+			script#lock-temp(type="text/template")
+				.admin-header-lock#lock-box
+					.admin-header-lock-img
+						img(src="images/0.jpg")
+					.admin-header-lock-name#lockUserName  PHPER
+					input.admin-header-lock-input#lockPwd(type="text", value="输入密码解锁..", name="lockPwd")
+					button.layui-btn.layui-btn-small#unlock 解锁
+			script(type="text/javascript", src="/plugins/layui/layui.js")
+			script(type="text/javascript", src="/datas/nav.js")
+			script(type="text/javascript", src="/js/index.js")
+			script.
+				layui.use(['layim','layer', 'form', 'upload'], function(layim) {
+					var _user = '#{data._id}';
+					console.log('当前用户：' + _user);
+					var msgboxNum = '#{msgboxNum}';	
+					var $ = layui.jquery,
+						layer = layui.layer,
+						form = layui.form();
+					$('#video1').on('click', function() {
+						layer.open({
+							title: 'YouTube',
+							maxmin: true,
+							type: 2,
+							content: '/admin/video',
+							area: ['800px', '500px']
+						});
+					});
+					var addBoxIndex = -1;
+					$('.profile').on('click', function() {
+						if(addBoxIndex !== -1)
+							return;
+						$.get('/users/profile', null, function(form) {
+							addBoxIndex = layer.open({
+								type: 1,
+								title: '个人信息',
+								content: form,
+								btn: ['保存', '取消'],
+								shade: false,
+								offset: ['100px', '30%'],
+								area: ['600px', '480px'],
+								zIndex: 19950924,
+								maxmin: true,
+								yes: function(index) {
+									//触发表单的提交事件
+									layer.close(index)
+								},
+								full: function(elem) {
+									var win = window.top === window.self ? window : parent.window;
+									$(win).on('resize', function() {
+										var $this = $(this);
+										elem.width($this.width()).height($this.height()).css({
+											top: 0,
+											left: 0
+										});
+										elem.children('div.layui-layer-content').height($this.height() - 95);
+									});
+								},
+								success: function(layero, index) {
+									window.a = index;
+								},
+								end: function() {
+									addBoxIndex = -1;
+								}
+							});
+						});
+					})
+
+					$('.loginout').on('click', function() {
+						$.get('/admin/loginout', function(data) {
+							if(data.code == 0) {
+								setTimeout(function () {
+				                    location.href = data.url;
+				                }, 1000);
+					            layer.msg(data.msg);
+							}
+						})
+					})
+				});

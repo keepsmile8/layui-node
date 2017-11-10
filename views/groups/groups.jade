@@ -1,0 +1,259 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		title 表格
+		link(rel="stylesheet", type="text/css", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", type="text/css", href="/css/global.css", media="all")
+		link(rel="stylesheet", type="text/css", href="http://www.jq22.com/jquery/font-awesome.4.6.0.css", media="all")
+		link(rel="stylesheet", type="text/css", href="/css/table.css", media="all")
+	body
+		.admin-main
+			blockquote.layui-elem-quote
+				a.layui-btn.layui-btn-small#add(href="javascript:;")
+					i.layui-icon &#xe608;
+					span 添加组
+			fieldset.layui-elem-field
+				legend 数据列表
+				.layui-field-box.layui-form
+					table.layui-table.admin-table
+						thead
+							tr
+								th(style="width: 30px;")
+									input(type="checkbox", lay-filter="allselector", lay-skin="primary")
+								th ID
+								th 名称
+								th 权重
+								th 创建时间
+								th 状态
+								th 操作
+						tbody#content
+			.admin-table-page
+				.page#paged
+			//- 模板
+			script(type="text/html", id="tpl")
+				span {{# layui.each(d.list, function(index, item){ }}
+				tr
+					td
+						input(type="checkbox", lay-skin="primary")
+					td
+						span {{ item._id }}
+					td
+						span {{ item.name }}
+					td
+						span {{ item.weight }}
+					td
+						span {{ item.create_time }}
+					td
+						span {{ item.status }}
+					td
+						a.layui-btn.layui-btn-normal.layui-btn-mini(href="javascript:;", data-opt="auth", data-id="{{item._id}}") 授权
+						a.layui-btn.layui-btn-mini(href="javascript:;", data-name="{{ item.name }}", data-id="{{item._id}}", data-opt="edit") 编辑
+						a.layui-btn.layui-btn-danger.layui-btn-mini(href="javascript:;", data-id="{{item._id}}", data-opt="del") 删除
+				span {{# }); }}
+			script(type="text/javascript", src="/plugins/layui/layui.js")
+			script.
+				layui.config({
+					base: '/js/'
+				});
+
+				layui.use(['paging', 'form'], function() {
+					var $ = layui.jquery,
+						paging = layui.paging(),
+						layerTips = parent.layer === undefined ? layui.layer : parent.layer,
+						layer = layui.layer,
+						form = layui.form();
+
+					paging.init({
+						url: '/admin/group',
+						elem: '#content',
+						params: {
+						},
+						type: 'POST',
+						tempElem: '#tpl',
+						pageConfig: {
+							elem: '#paged',
+							pageSize: 8
+						},
+						success: function() {
+						},
+						fail: function(msg) {
+						},
+						complate: function() {
+							form.render('checkbox');
+							form.on('checkbox(allselector)', function(data) {
+								var elem = data.elem;
+
+								$('#content').children('tr').each(function() {
+									var $that = $(this);
+									$that.children('td').eq(0).children('input[type=checkbox]')[0].checked = elem.checked;
+									form.render('checkbox');
+								});
+							});
+					
+							$('#content').children('tr').each(function() {
+								var $that = $(this);
+								$that.children('td:last-child').children('a[data-opt=edit]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									$.get('/admin/group/edit/'+_id, null, function(form) {
+										layer.open({
+											type: 1,
+											title: '编辑用户组',
+											content: form,
+											btn: ['保存', '取消'],
+											shade: false,
+											offset: ['100px', '30%'],
+											area: ['600px', '450px'],
+											zIndex: 19950924,
+											maxmin: true,
+											yes: function(index) {
+												$('form.layui-form').find('button[lay-filter=edit]').click();
+												layer.close(index)
+											},
+											full: function(elem) {
+												var win = window.top === window.self ? window : parent.window;
+												$(win).on('resize', function() {
+													var $this = $(this);
+													elem.width($this.width()).height($this.height()).css({
+														top: 0,
+														left: 0
+													});
+													elem.children('div.layui-layer-content').height($this.height() - 95);
+												});
+											},
+											success: function(layero, index) {
+												var form = layui.form();
+												form.render();
+												form.on('submit(edit)', function(data) {
+													$.post('/admin/group/edit', data.field, function(data) {
+														setTimeout(function () {
+										                    location.href = data.url;
+										                }, 1000);
+											            layer.msg(data.msg);
+													})
+													return false;
+												});
+											},
+											end: function() {
+											}
+										});
+									});
+								});
+								$that.children('td:last-child').children('a[data-opt=del]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									$.get('/admin/group/del/'+_id, null, function(data) {
+										setTimeout(function () {
+						                    location.href = data.url;
+						                }, 1000);
+							            layer.msg(data.msg);
+									})
+								});
+								$that.children('td:last-child').children('a[data-opt=auth]').on('click', function() {
+									var _id = $(this).attr('data-id');
+									$.get('/admin/group/auth/'+_id, null, function(form) {
+										layer.open({
+											type: 1,
+											title: '授权用户组',
+											content: form,
+											btn: ['保存', '取消'],
+											shade: false,
+											offset: ['100px', '30%'],
+											area: ['600px', '400px'],
+											zIndex: 19950924,
+											maxmin: true,
+											yes: function(index) {
+												//触发表单的提交事件
+												$('form.layui-form').find('button[lay-filter=edit]').click();
+												layer.close(index)
+											},
+											full: function(elem) {
+												var win = window.top === window.self ? window : parent.window;
+												$(win).on('resize', function() {
+													var $this = $(this);
+													elem.width($this.width()).height($this.height()).css({
+														top: 0,
+														left: 0
+													});
+													elem.children('div.layui-layer-content').height($this.height() - 95);
+												});
+											},
+											success: function(layero, index) {
+											},
+											end: function() {
+											}
+										});
+									});
+								})
+							});
+						},
+					});
+					//获取所有选择的列
+					$('#getSelected').on('click', function() {
+						var names = '';
+						$('#content').children('tr').each(function() {
+							var $that = $(this);
+							var $cbx = $that.children('td').eq(0).children('input[type=checkbox]')[0].checked;
+							if($cbx) {
+								var n = $that.children('td:last-child').children('a[data-opt=edit]').data('name');
+								names += n + ',';
+							}
+						});
+						layer.msg('你选择的名称有：' + names);
+					});
+
+					var addBoxIndex = -1;
+					$('#add').on('click', function() {
+						if(addBoxIndex !== -1)
+							return;
+						$.get('/admin/group/add', null, function(form) {
+							addBoxIndex = layer.open({
+								type: 1,
+								title: '创建用户组',
+								content: form,
+								btn: ['保存', '取消'],
+								shade: false,
+								offset: ['100px', '30%'],
+								area: ['600px', '400px'],
+								zIndex: 19950924,
+								maxmin: true,
+								yes: function(index) {
+									$('form.layui-form').find('button[lay-filter=edit]').click();
+									layer.close(index)
+								},
+								full: function(elem) {
+									var win = window.top === window.self ? window : parent.window;
+									$(win).on('resize', function() {
+										var $this = $(this);
+										elem.width($this.width()).height($this.height()).css({
+											top: 0,
+											left: 0
+										});
+										elem.children('div.layui-layer-content').height($this.height() - 95);
+									});
+								},
+								success: function(layero, index) {
+									var form = layui.form();
+									form.render();
+									form.on('submit(edit)', function(data) {
+										$.post('/admin/group/add', data.field, function(data) {
+											setTimeout(function () {
+							                    location.href = data.url;
+							                }, 1000);
+								            layer.msg(data.msg);
+										});
+										return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。									
+									});
+								},
+								end: function() {
+									addBoxIndex = -1;
+								}
+							});
+						});
+					});
+
+					$('#import').on('click', function() {
+						var that = this;
+						var index = layer.tips('只想提示地精准些', that, { tips: [1, 'white'] });
+						$('#layui-layer' + index).children('div.layui-layer-content').css('color', '#000000');
+					});
+				});

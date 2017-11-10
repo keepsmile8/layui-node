@@ -1,0 +1,31 @@
+div(style="margin:15px")
+	form.layui-form(action="/navs/add", method="post")
+		.layui-form-item
+			label.layui-form-label 上级菜单
+			.layui-input-block
+				select(name="pid", lay-filter="pid")
+					option(value="000000000000000000000000") 一级菜单
+					each val in navs
+						option(value="#{val._id}") #{val.name}
+		.layui-form-item
+			label.layui-form-label 菜单名称
+			.layui-input-block
+				input.layui-input(type="text", name="name", lay-verify="name", autocomplete="off", placeholder="请输入导航名")
+		.layui-form-item
+			label.layui-form-label 链接
+			.layui-input-block
+				input.layui-input(type="text", name="href", lay-verify="href", autocomplete="off", placeholder="请输入href")
+		.layui-form-item
+			label.layui-form-label 图标
+			.layui-input-block
+				input.layui-input(type="text", name="icon", lay-verify="icon", autocomplete="off", placeholder="请输入icon")
+		.layui-form-item
+			label.layui-form-label 状态
+			.layui-input-block
+				input(type="radio", name="status", value="1", title="显示", checked)
+				input(type="radio", name="status", value="0", title="隐藏")
+		.layui-form-item
+			label.layui-form-label 排序
+			.layui-input-block
+				input.layui-input(type="text", name="sort", lay-verify="sort", autocomplete="off", placeholder="请输入sort" value="0")
+		button(lay-filter="edit", style="display: none;", lay-submit)

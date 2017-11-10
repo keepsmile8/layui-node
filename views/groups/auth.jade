@@ -1,0 +1,88 @@
+link(rel="stylesheet", href="/css/ztree-metro-style.css")
+div(style="margin:15px")
+	form.layui-form(action="/users/add", method="post", onsubmit="return false;")
+		.layui-form-item
+			label.layui-form-label 选择权限
+			.layui-input-block
+				ul.ztree#tree(data-id="#{group._id}")
+		button(lay-filter="edit", style="display: none;", lay-submit, data-id="#{group._id}")
+
+script(type="text/javascript", src="/js/jquery.min.js")
+script(type="text/javascript", src="/js/jquery.ztree.all.min.js")
+script(type="text/javascript", src="/plugins/layui/lay/modules/layer.js")
+script.
+	$(document).ready(function(){
+		var _id = $("[lay-filter=edit]").attr('data-id');
+		var tree = $("#tree");
+		var zTree;
+		var rules = "#{group.rules}";
+		var setting = {
+			check: {
+				enable: true
+			},
+			view: {
+				dblClickExpand: false,
+				showLine: true,
+				showIcon: false,
+				selectedMulti: false
+			},
+			data: {
+				simpleData: {
+					enable: true,
+					idKey: "_id",
+					pIdKey: "pid",
+					rootpid: ""
+				},
+				key: {
+					name: "name"
+				}
+			}
+		};
+		$.ajax({
+			url: "/admin/group/getJson",
+			type: "post",
+			dataType: "json",
+			cache: false,
+			data: {
+				_id: _id
+			},
+			success: function (data) {
+				rules = rules.split(',');
+				$.each(data.list, function(index, item) {
+					if(rules.indexOf(item._id) != -1) {
+						data.list[index].checked = true;
+					}
+				})
+				zTree = $.fn.zTree.init(tree, setting, data.list);
+			}
+		});
+		$("[lay-filter=edit]").on("click", function () {
+			var checked_ids,auth_rule_ids = [];
+			checked_ids = zTree.getCheckedNodes(); // 获取当前选中的checkbox
+			$.each(checked_ids, function (index, item) {
+				auth_rule_ids.push(item._id);
+			});
+			var auth_rule_ids = auth_rule_ids.join(',');
+			$.ajax({
+				url: "/admin/group/updaterule",
+				type: "post",
+				cache: false,
+				data: {
+					_id: _id,
+					rules: auth_rule_ids
+				},
+				success: function (data) {
+					if(data.code === 0){
+						setTimeout(function () {
+							location.href = data.url;
+						}, 1000);
+					}
+					layer.msg(data.msg);
+				}
+			});
+		});
+	});
+
+
+	
+	

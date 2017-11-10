@@ -1,0 +1,54 @@
+doctype
+html
+	head
+		meta(charset="utf-8")
+		meta(http-equiv="X-UA-Compatible", content="IE=edge")
+		meta(name="viewport", content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no")
+		title 网站安装
+		link(rel="stylesheet", href="/plugins/layui/css/layui.css", media="all")
+		link(rel="stylesheet", href="/css/install.css", media="all")
+	body(class="beg-login-bg")
+		.beg-login-box
+			header
+				h1 网站安装
+			.beg-login-main
+				form.layui-form.layui-form-pane(action="/system/install", method="post")
+					.layui-form-item
+						label.layui-form-label 管理员账号
+						.layui-input-block
+							input.layui-input(type="text", name="user", value="admin" lay-verify="user", autocomplete="off", placeholder="这里输入管理员账号")
+					.layui-form-item
+						label.layui-form-label 管理员密码
+						.layui-input-block
+							input.layui-input(type="password", name="password", lay-verify="password", autocomplete="off", placeholder="这里输入管理员密码")
+					.layui-form-item(style="text-align:center;")
+						button.layui-btn.layui-btn-primary(lay-submit, lay-filter="login")
+							i.layui-icon &#xe650;
+							span 登录
+			footer
+				p PHPER © www.wlzone.cn
+		script(type="text/javascript", src="/plugins/layui/layui.js")
+		script.
+			layui.use(['layer', 'form'], function() {
+				var layer = layui.layer,
+					$ = layui.jquery,
+					form = layui.form();
+				form.on('submit(login)', function(data){
+					$.ajax({
+				        url: data.form.action,
+				        type: data.form.method,
+				        data: $(data.form).serialize(),
+				        success: function (info) {
+			                setTimeout(function () {
+			                    location.href = info.url;
+			                }, 1000);
+				            layer.msg(info.msg);
+				        }
+				    });
+
+				    return false;
+				});
+			})
+			
+
+
